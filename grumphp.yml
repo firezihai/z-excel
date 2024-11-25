@@ -1,0 +1,12 @@
+grumphp:
+  tasks:
+    phpcsfixer: 
+      config: './.php-cs-fixer.php'
+    phpstan: 
+      configuration: './phpstan.neon'
+      memory_limit: '-1'
+      level: 0
+  fixer:
+    enabled: true
+    fix_by_default: true
+

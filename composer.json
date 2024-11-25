@@ -1,0 +1,35 @@
+{
+    "name": "firezihai/z-excel",
+    "description": "通过注解解析和导出excel表格",
+    "type": "library",
+    "require": {
+		 "php": ">=8.0",
+        "phpoffice/phpspreadsheet": "^1.25"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "phpstan/phpstan": "^1.12",
+        "phpro/grumphp": "^1.16"
+    },
+    "license": "GPLv3",
+    "autoload": {
+        "psr-4": {
+            "Firezihai\\Excel\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "firezihai",
+            "email": "firezihai@163.com"
+        }
+    ],
+	"scripts": {
+        "analyse": "phpstan analyse --memory-limit 1024M -l 0 ./src",
+        "cs-fix": "php-cs-fixer fix"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpro/grumphp": true
+        }
+    }
+}
