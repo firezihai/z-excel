@@ -1,15 +1,15 @@
-# Excel
+# Z-Excel
 
 ## 功能
 
-- 用于解析表格内容
+- 用于解析和导出表格
 - 支持phpoffice、xlswriter
 
 
 ## 安装
 
 ```shell
-composer require firezihai/excel -vvv
+composer require firezihai/z-excel
 
 ```
 
@@ -32,8 +32,15 @@ class UserDto implements ExcelDtoInterface
     #[ExcelHeader(name:"出生日期",index:3)]
     public string $birthday;
     
-    #[ExcelHeader(name:"性别",index:2)]
+    #[ExcelHeader(name:"性别",index:2,formatter:true)]
     public string $gender;
+
+    // 将性别转成中文
+    public function formatterGender($value)
+    {
+        $gender = ['未知','男','女'];
+        return $gender[$value]??'';
+    }
 }
 
 ```
