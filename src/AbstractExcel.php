@@ -98,6 +98,23 @@ abstract class AbstractExcel
         ksort($newHeader);
         return $newHeader;
     }
+    
+    /**
+     * 过滤表头
+     * @param array $excelHeader dto注解解析的表头
+     * @param array $exportHeader 需要过滤掉的表头
+     */
+    public function filterHeader(array $excelHeader,array $exportHeader)
+    {
+        $filterHeader = [];
+        foreach ($excelHeader as $value) {
+            if (in_array($value['field'], $exportHeader)) {
+                $filterHeader[] =$value;
+            }
+        }
+        return $filterHeader;
+        
+    }
 
     /**
      * 将元素添加到索引前面.

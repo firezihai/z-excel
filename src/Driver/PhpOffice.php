@@ -25,7 +25,7 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
         return $annotationMeta['header'];
     }
 
-    public function export(string $dto, array $data)
+    public function export(string $dto, array $data,array $exportHeader = [])
     {
         $this->dto = $dto;
         $annotationMeta = $this->parseDtoAnnotation($dto);
@@ -43,7 +43,9 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
                 ->setHorizontal($annotationMeta['align'])->setVertical($annotationMeta['align']);
         }
         $excelHeader = $this->sortHeader($annotationMeta['header']);
-
+        if (!empty($exportHeader)) {
+            $excelHeader = $this->filterHeader($excelHeader, $exportHeader);
+        }
         // 填充表头
         $this->fillHeader($spreadsheet, $annotationMeta, $excelHeader);
 

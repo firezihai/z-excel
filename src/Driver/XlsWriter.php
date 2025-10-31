@@ -92,13 +92,16 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
         return $data;
     }
 
-    public function export(string $dto, array $data)
+    public function export(string $dto, array $data,array $exportHeader = [])
     {
         $this->dto = $dto;
         $annotationMeta = $this->parseDtoAnnotation($dto);
 
         $excelHeader = $this->sortHeader($annotationMeta['header']);
-
+        if (!empty($exportHeader)) {
+           $excelHeader = $this->filterHeader($excelHeader, $exportHeader);
+        }
+   
         $excel = new Excel(['path' => $this->getTmpDir() . '/']);
         $tempFileName = time() . '.xlsx';
         $fileObject = $excel->fileName($tempFileName);
