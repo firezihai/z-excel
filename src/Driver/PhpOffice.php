@@ -14,6 +14,17 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PhpOffice extends AbstractExcel implements ExcelInterface
 {
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public function getExportHeader(string $dto)
+    {
+        $annotationMeta = $this->parseDtoAnnotation($dto);
+        $excelHeader = $this->sortHeader($annotationMeta['header']);
+        return $annotationMeta['header'];
+    }
+
     public function export(string $dto, array $data)
     {
         $this->dto = $dto;
@@ -147,4 +158,7 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
 
         return $data;
     }
+    
+    
+    
 }

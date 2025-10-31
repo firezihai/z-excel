@@ -17,6 +17,17 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
         'right' => [Format::FORMAT_ALIGN_RIGHT, Format::FORMAT_ALIGN_VERTICAL_CENTER],
     ];
 
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    public function getExportHeader(string $dto)
+    {
+        $annotationMeta = $this->parseDtoAnnotation($dto);
+        $excelHeader = $this->sortHeader($annotationMeta['header']);
+        return $annotationMeta['header'];
+    }
+
     public function parse(string $filename, string $dto)
     {
         $config = ['path' => dirname($filename)];
@@ -153,4 +164,6 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
 
         $excel->header($columnName);
     }
+    
+    
 }

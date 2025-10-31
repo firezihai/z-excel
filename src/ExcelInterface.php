@@ -16,4 +16,9 @@ interface ExcelInterface
      * 导出excel.
      */
     public function export(string $dto, array $data);
+	
+    /**
+     * 获取导出表头(用于自定义导出字段)
+     */
+	public function getExportHeader(string $dto);
 }

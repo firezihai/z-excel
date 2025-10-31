@@ -28,6 +28,6 @@ class ExcelHeader
         public ?string $source = null,
         public ?string $align = 'center',
         public ?string $color = null,
-        public ?bool $formatter = null
+        public mixed $formatter = null
     ) {}
 }

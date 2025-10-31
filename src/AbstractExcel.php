@@ -161,7 +161,13 @@ abstract class AbstractExcel
      */
     protected function getFieldValue(array $item, array $header)
     {
-        $formaterMethod = $header['formatter'] ? $this->dto . '::formatter' . ucfirst($header['field']) : '';
+        $formaterMethod = '';
+        if (is_string($header['formatter'])) {
+            $formaterMethod = $this->dto . '::'.$header['formatter'];
+        } else if (is_bool($header['formatter'] ) && $header['formatter']  === true) {
+            $formaterMethod = $this->dto . '::formatter' . ucfirst($header['field']);
+        }
+
 
         $value = isset($item[$header['field']]) ? $item[$header['field']] : '';
 
@@ -182,7 +188,7 @@ abstract class AbstractExcel
             }
         }
 
-        return $formaterMethod ? $formaterMethod($value) : $value;
+        return $formaterMethod ? $formaterMethod($value,$item) : $value;
     }
 
     protected function getTmpDir(): string
