@@ -7,6 +7,7 @@ namespace Firezihai\Excel\Driver;
 use Firezihai\Excel\AbstractExcel;
 use Firezihai\Excel\ExcelInterface;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -83,6 +84,12 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
             $activeSheet->setCellValue($headerColumn, $item['name']);
 
             $columnDimension = $activeSheet->getColumnDimension($headerColumn[0]);
+
+            if (! empty($item['comment'])) {
+                $richText = new RichText();
+                $richText->createText($item['comment']);
+                $activeSheet->getComment($headerColumn)->setText($richText);
+            }
             if (! empty($item['width'])) {
                 $columnDimension->setWidth((float) $item['width']);
             } else {

@@ -28,6 +28,7 @@ class ExcelHeader
         public ?string $source = null,
         public ?string $align = 'center',
         public ?string $color = null,
-        public mixed $formatter = null
+        public mixed $formatter = null,
+        public ?string $comment = null,
     ) {}
 }
