@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Firezihai\Excel\Excption;
+namespace Firezihai\Excel\Exception;
 
 class HeaderErrorException extends \Exception {}

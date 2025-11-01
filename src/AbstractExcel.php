@@ -6,7 +6,7 @@ namespace Firezihai\Excel;
 
 use Firezihai\Excel\Annotation\ExcelDto;
 use Firezihai\Excel\Annotation\ExcelHeader;
-use Firezihai\Excel\Excption\HeaderErrorException;
+use Firezihai\Excel\Exception\HeaderErrorException;
 
 abstract class AbstractExcel
 {
