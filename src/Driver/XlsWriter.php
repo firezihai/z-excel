@@ -17,10 +17,6 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
         'right' => [Format::FORMAT_ALIGN_RIGHT, Format::FORMAT_ALIGN_VERTICAL_CENTER],
     ];
 
-    /**
-     * {@inheritDoc}
-     * 
-     */
     public function getExportHeader(string $dto)
     {
         $annotationMeta = $this->parseDtoAnnotation($dto);
@@ -45,6 +41,7 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
         $i = 0;
         $data = [];
         $types = [];
+        $excelHeader = [];
         while (($row = $excel->nextRow($types)) !== null) {
             if ($i == 0) {
                 foreach ($row as $key => $value) {
@@ -61,6 +58,12 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
                     if (strpos($value, '时间') !== false || strpos($value, '日期') !== false) {
                         $types[$key] = Excel::TYPE_TIMESTAMP;
                     }
+                    $excelHeader[] = $value;
+                }
+                // 只在按表头名称获取数据时可以检查表头
+                if ($type === 'name') {
+                    file_put_contents('zhai.txt', join(',', $excelHeader));
+                    $this->checkHeader($annotationMate['checkHeader'], $excelHeader, $header);
                 }
             } else {
                 $temp = [];
@@ -92,16 +95,16 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
         return $data;
     }
 
-    public function export(string $dto, array $data,array $exportHeader = [])
+    public function export(string $dto, array $data, array $exportHeader = [])
     {
         $this->dto = $dto;
         $annotationMeta = $this->parseDtoAnnotation($dto);
 
         $excelHeader = $this->sortHeader($annotationMeta['header']);
-        if (!empty($exportHeader)) {
-           $excelHeader = $this->filterHeader($excelHeader, $exportHeader);
+        if (! empty($exportHeader)) {
+            $excelHeader = $this->filterHeader($excelHeader, $exportHeader);
         }
-   
+
         $excel = new Excel(['path' => $this->getTmpDir() . '/']);
         $tempFileName = time() . '.xlsx';
         $fileObject = $excel->fileName($tempFileName);
@@ -167,6 +170,4 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
 
         $excel->header($columnName);
     }
-    
-    
 }

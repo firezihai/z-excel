@@ -14,10 +14,6 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PhpOffice extends AbstractExcel implements ExcelInterface
 {
-    /**
-     * {@inheritDoc}
-     * 
-     */
     public function getExportHeader(string $dto)
     {
         $annotationMeta = $this->parseDtoAnnotation($dto);
@@ -25,7 +21,7 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
         return $annotationMeta['header'];
     }
 
-    public function export(string $dto, array $data,array $exportHeader = [])
+    public function export(string $dto, array $data, array $exportHeader = [])
     {
         $this->dto = $dto;
         $annotationMeta = $this->parseDtoAnnotation($dto);
@@ -43,7 +39,7 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
                 ->setHorizontal($annotationMeta['align'])->setVertical($annotationMeta['align']);
         }
         $excelHeader = $this->sortHeader($annotationMeta['header']);
-        if (!empty($exportHeader)) {
+        if (! empty($exportHeader)) {
             $excelHeader = $this->filterHeader($excelHeader, $exportHeader);
         }
         // 填充表头
@@ -119,24 +115,37 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
         $fieldMap = [];
         $type = $annotationMate['type'] ?? 'name';
         foreach ($header as $value) {
+            // $value[$type] 注解类的属性注解配置的index或者name
+            // $value['field'] 注解类的属性名称
             $fieldMap[$value[$type]] = $value['field'];
         }
+
         $endCell = $header ? $this->getColumnIndex(count($header)) : null;
         $data = [];
         $i = 0;
+        // 获取表头名称和表字段名的映射
         $fieldCell = [];
+        $excelHeader = [];
         foreach ($sheet->getActiveSheet()->getRowIterator(1, 1) as $row) {
             foreach ($row->getCellIterator('A', $endCell) as $index => $item) {
                 $value = $item->getValue();
+                // 按索引解析表格时,因为注解配置是从0开始，而excel索引是A即ASCII码65,所以要减去65
                 $fieldKey = $annotationMate['type'] == 'index' ? ord($index) - 65 : $value;
                 // 空跳过
                 if (empty($value) || ! isset($fieldMap[$fieldKey])) {
                     continue;
                 }
+                // 表格类索引对应的字段名称
                 $fieldCell[ord($index)] = $fieldMap[$fieldKey];
+                $excelHeader[] = $value;
             }
             ++$i;
         }
+        // 只在按表头名称获取数据时可以检查表头
+        if ($type === 'name') {
+            $this->checkHeader($annotationMate['checkHeader'], $excelHeader, $header);
+        }
+
         foreach ($sheet->getActiveSheet()->getRowIterator(2) as $row) {
             $temp = [];
             foreach ($row->getCellIterator('A', $endCell) as $index => $item) {
@@ -160,7 +169,4 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
 
         return $data;
     }
-    
-    
-    
 }

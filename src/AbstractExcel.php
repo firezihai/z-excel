@@ -6,6 +6,7 @@ namespace Firezihai\Excel;
 
 use Firezihai\Excel\Annotation\ExcelDto;
 use Firezihai\Excel\Annotation\ExcelHeader;
+use Firezihai\Excel\Excption\HeaderErrorException;
 
 abstract class AbstractExcel
 {
@@ -98,22 +99,40 @@ abstract class AbstractExcel
         ksort($newHeader);
         return $newHeader;
     }
-    
+
     /**
-     * 过滤表头
+     * 过滤表头.
      * @param array $excelHeader dto注解解析的表头
      * @param array $exportHeader 需要过滤掉的表头
      */
-    public function filterHeader(array $excelHeader,array $exportHeader)
+    public function filterHeader(array $excelHeader, array $exportHeader)
     {
         $filterHeader = [];
         foreach ($excelHeader as $value) {
             if (in_array($value['field'], $exportHeader)) {
-                $filterHeader[] =$value;
+                $filterHeader[] = $value;
             }
         }
         return $filterHeader;
-        
+    }
+
+    /**
+     * 核验表头名称是否和注解配置一致.
+     */
+    public function checkHeader(bool $isCheck, array $excelHeader, array $annotationHeader)
+    {
+        if (! $isCheck) {
+            return;
+        }
+        $names = array_column($annotationHeader, 'name');
+        // 在注解数组中,不在表格中
+        $missing = array_diff($names, $excelHeader);
+
+        if (empty($missing)) {
+            return;
+        }
+
+        throw new HeaderErrorException('表头缺少必需字段: ' . join(', ', $missing));
     }
 
     /**
@@ -180,11 +199,10 @@ abstract class AbstractExcel
     {
         $formaterMethod = '';
         if (is_string($header['formatter'])) {
-            $formaterMethod = $this->dto . '::'.$header['formatter'];
-        } else if (is_bool($header['formatter'] ) && $header['formatter']  === true) {
+            $formaterMethod = $this->dto . '::' . $header['formatter'];
+        } elseif (is_bool($header['formatter']) && $header['formatter'] === true) {
             $formaterMethod = $this->dto . '::formatter' . ucfirst($header['field']);
         }
-
 
         $value = isset($item[$header['field']]) ? $item[$header['field']] : '';
 
@@ -205,7 +223,7 @@ abstract class AbstractExcel
             }
         }
 
-        return $formaterMethod ? $formaterMethod($value,$item) : $value;
+        return $formaterMethod ? $formaterMethod($value, $item) : $value;
     }
 
     protected function getTmpDir(): string
