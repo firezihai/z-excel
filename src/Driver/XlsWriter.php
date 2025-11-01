@@ -62,7 +62,6 @@ class XlsWriter extends AbstractExcel implements ExcelInterface
                 }
                 // 只在按表头名称获取数据时可以检查表头
                 if ($type === 'name') {
-                    file_put_contents('zhai.txt', join(',', $excelHeader));
                     $this->checkHeader($annotationMate['checkHeader'], $excelHeader, $header);
                 }
             } else {
