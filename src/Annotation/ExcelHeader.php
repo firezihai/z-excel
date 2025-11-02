@@ -20,6 +20,7 @@ class ExcelHeader
      * @param string $color 表头文字颜色
      * @param bool $formatter 是否开启格式化,当值为true时，须要定义以formatter开头的自定义格式化方法，例如,status字段开启格式化
      *                        必须定义formatterStatus方法，对status字段格式化
+     * @param string $dataType 主要用于时间格式在部分情况下被解析成数字，但是又无法用库内部方法正确识别的情况 date datetime time
      */
     public function __construct(
         public string $name,
@@ -30,5 +31,6 @@ class ExcelHeader
         public ?string $color = null,
         public mixed $formatter = null,
         public ?string $comment = null,
+        public ?string $dataType = ''
     ) {}
 }

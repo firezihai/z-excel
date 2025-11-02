@@ -10,6 +10,18 @@ use Firezihai\Excel\Exception\HeaderErrorException;
 
 abstract class AbstractExcel
 {
+    public const DATA_TYPE_DATE = 'date';
+
+    public const DATA_TYPE_DATETIME = 'datetime';
+
+    public const DATA_TYPE_TIME = 'time';
+
+    public const DATA_TYPE_FORMAT = [
+        self::DATA_TYPE_DATE => 'Y-m-d',
+        self::DATA_TYPE_DATETIME => 'Y-m-d H:i:s',
+        self::DATA_TYPE_TIME => 'H:i:s',
+    ];
+
     protected $dto;
 
     protected $dtoAnnotion = ExcelDto::class;
@@ -132,7 +144,7 @@ abstract class AbstractExcel
             return;
         }
 
-        throw new HeaderErrorException('表头缺少必需字段: ' . join(', ', $missing));
+        throw new HeaderErrorException('表格缺少表头: ' . join(', ', $missing));
     }
 
     /**
@@ -170,7 +182,10 @@ abstract class AbstractExcel
             foreach ($mate[$this->dtoPropertyAnnotion] as $name => $mate) {
                 $item[$name] = $mate;
             }
-
+            // 检查时间类型配置错误
+            if ($item['dataType'] && ! array_key_exists($item['dataType'], self::DATA_TYPE_FORMAT)) {
+                throw new HeaderErrorException('表头' . $item['field'] . '的dataType参数错误，错误值：' . $item['dataType']);
+            }
             $header[] = $item;
         }
         $result['header'] = $header;

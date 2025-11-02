@@ -6,12 +6,14 @@ namespace Firezihai\Excel\Driver;
 
 use Firezihai\Excel\AbstractExcel;
 use Firezihai\Excel\ExcelInterface;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PhpOffice extends AbstractExcel implements ExcelInterface
 {
@@ -121,10 +123,15 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
         $header = $annotationMate['header'];
         $fieldMap = [];
         $type = $annotationMate['type'] ?? 'name';
+
+        // 按字段名映射配置
+        $excelHeader = [];
+
         foreach ($header as $value) {
             // $value[$type] 注解类的属性注解配置的index或者name
             // $value['field'] 注解类的属性名称
             $fieldMap[$value[$type]] = $value['field'];
+            $excelHeader[$value['field']] = $value;
         }
 
         $endCell = $header ? $this->getColumnIndex(count($header)) : null;
@@ -132,7 +139,7 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
         $i = 0;
         // 获取表头名称和表字段名的映射
         $fieldCell = [];
-        $excelHeader = [];
+        $excelHeaderName = [];
         foreach ($sheet->getActiveSheet()->getRowIterator(1, 1) as $row) {
             foreach ($row->getCellIterator('A', $endCell) as $index => $item) {
                 $value = $item->getValue();
@@ -144,29 +151,43 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
                 }
                 // 表格类索引对应的字段名称
                 $fieldCell[ord($index)] = $fieldMap[$fieldKey];
-                $excelHeader[] = $value;
+                $excelHeaderName[] = $value;
             }
             ++$i;
         }
         // 只在按表头名称获取数据时可以检查表头
         if ($type === 'name') {
-            $this->checkHeader($annotationMate['checkHeader'], $excelHeader, $header);
+            $this->checkHeader($annotationMate['checkHeader'], $excelHeaderName, $header);
         }
 
         foreach ($sheet->getActiveSheet()->getRowIterator(2) as $row) {
             $temp = [];
-            foreach ($row->getCellIterator('A', $endCell) as $index => $item) {
-                $value = $item->getFormattedValue();
-                // 转换时间格式
-                if (in_array($item->getStyle()->getNumberFormat()->getFormatCode(), [
-                    NumberFormat::FORMAT_DATE_DATETIME,
-                    NumberFormat::FORMAT_DATE_DDMMYYYY,
-                    NumberFormat::FORMAT_DATE_DMYMINUS,
-                    NumberFormat::FORMAT_DATE_DMYSLASH,
-                ])) {
-                    $value = date('Y-m-d H:i:s', strtotime($value));
+            /*
+             * @var Cell $item
+             */
+            foreach ($row->getCellIterator('A', $endCell) as $index => $cell) {
+                // 时间格式
+                if (Date::isDateTime($cell)) {
+                    $value = $cell->getFormattedValue();
+                // 函数
+                } elseif ($cell->getDataType() == DataType::TYPE_FORMULA) {
+                    $value = $cell->getCalculatedValue();
+                } else {
+                    $value = $cell->getFormattedValue();
                 }
+                // 获取字段名称
                 $key = $fieldCell[ord($index)] ?? '';
+                // 数据类型
+                $diyDataType = $excelHeader[$key]['dataType'] ?? '';
+                // 转成时间
+                if ($diyDataType && $cell->getDataType() == DataType::TYPE_NUMERIC) {
+                    $value = Date::excelToTimestamp($cell->getValue());
+                    // 按定义的格式转换
+                    if (isset(self::DATA_TYPE_FORMAT[$diyDataType])) {
+                        $value = date(self::DATA_TYPE_FORMAT[$diyDataType], $value);
+                    }
+                }
+
                 if ($key) {
                     $temp[$key] = $value;
                 }
