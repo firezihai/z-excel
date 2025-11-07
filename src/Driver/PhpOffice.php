@@ -134,7 +134,8 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
             $excelHeader[$value['field']] = $value;
         }
 
-        $endCell = $header ? $this->getColumnIndex(count($header)) : null;
+        //  $endCell = $header ? $this->getColumnIndex(count($header)) : null;
+        $endCell = $sheet->getActiveSheet()->getHighestColumn(); // 英文最大值
         $data = [];
         $i = 0;
         // 获取表头名称和表字段名的映射
@@ -192,7 +193,10 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
                     $temp[$key] = $value;
                 }
             }
-            $data[] = $temp;
+            $content = join('', array_values($temp));
+            if (! $content) {
+                $data[] = $temp;
+            }
         }
 
         return $data;
