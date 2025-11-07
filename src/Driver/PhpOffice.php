@@ -194,7 +194,8 @@ class PhpOffice extends AbstractExcel implements ExcelInterface
                 }
             }
             $content = join('', array_values($temp));
-            if (! $content) {
+            echo $content . "\r\n";
+            if (! empty($content)) {
                 $data[] = $temp;
             }
         }
